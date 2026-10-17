@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     onDispose { lifecycle.removeObserver(obs) }
                 }
                 val scope = rememberCoroutineScope()
-                LaunchedEffect(hasAccess) { if (hasAccess) vm.refresh() }
+                LaunchedEffect(hasAccess) { vm.refresh() }
                 // Auto-refresh the list when the system reports a package uninstalled.
                 DisposableEffect(Unit) {
                     val receiver = object : BroadcastReceiver() {
