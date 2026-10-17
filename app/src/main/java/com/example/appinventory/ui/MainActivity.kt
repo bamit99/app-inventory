@@ -8,19 +8,24 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.appinventory.data.AndroidPackageListSource
@@ -29,6 +34,7 @@ import com.example.appinventory.data.AndroidUsageSource
 import com.example.appinventory.data.AppEntry
 import com.example.appinventory.data.AppInventoryRepository
 import com.example.appinventory.data.UsageAccess
+import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -40,7 +46,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 var hasAccess by remember { mutableStateOf(UsageAccess.hasUsageAccess(this@MainActivity)) }
-                // Re-check usage access each time the activity resumes (after returning from Settings).
                 DisposableEffect(Unit) {
                     val obs = LifecycleEventObserver { _, e ->
                         if (e == Lifecycle.Event.ON_RESUME) hasAccess = UsageAccess.hasUsageAccess(this@MainActivity)
@@ -49,19 +54,7 @@ class MainActivity : ComponentActivity() {
                     onDispose { lifecycle.removeObserver(obs) }
                 }
                 LaunchedEffect(hasAccess) { if (hasAccess) vm.refresh() }
-                Scaffold(floatingActionButton = {
-                    FloatingActionButton(onClick = { exportCsv(vm) }) { Text("CSV") }
-                }) { pad ->
-                    Column(Modifier.padding(pad)) {
-                        PermissionGate(hasAccess, onGrant = {
-                            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-                        }) {
-                            InventoryScreen(vm, onUninstall = { e: AppEntry ->
-                                startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:${e.packageName}")))
-                            })
-                        }
-                    }
-                }
+                Screen(vm, hasAccess, ::exportCsv)
             }
         }
     }
@@ -71,5 +64,31 @@ class MainActivity : ComponentActivity() {
         val out = File(dir, "apps.csv")
         out.writeText(vm.exportCsv())
         Toast.makeText(this, "Exported: ${out.absolutePath}", Toast.LENGTH_LONG).show()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Screen(vm: AppViewModel, hasAccess: Boolean, onExport: (AppViewModel) -> Unit) {
+    val scope = rememberCoroutineScope()
+    val activity = LocalContext.current
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("App Inventory") },
+                actions = {
+                    TextButton(onClick = { scope.launch { vm.refresh() } }) { Text("Scan") }
+                    TextButton(onClick = { onExport(vm) }) { Text("CSV") }
+                },
+            )
+        },
+    ) { pad ->
+        PermissionGate(hasAccess, onGrant = { activity.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }) {
+            Column(Modifier.fillMaxSize().padding(pad)) {
+                InventoryScreen(vm, onUninstall = { e: AppEntry ->
+                    activity.startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:${e.packageName}")))
+                })
+            }
+        }
     }
 }

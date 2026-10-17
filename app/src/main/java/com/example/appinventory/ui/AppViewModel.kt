@@ -20,6 +20,7 @@ data class UiState(
     val sort: SortColumn,
     val query: String,
     val filter: FilterCard,
+    val loading: Boolean = false,
 )
 
 class AppViewModel(
@@ -43,10 +44,13 @@ class AppViewModel(
         )
     }
 
-    suspend fun refresh() = recompute(
-        withContext(Dispatchers.IO) { repo.load() },
-        _state.value.sort, _state.value.query, _state.value.filter,
-    )
+    suspend fun refresh() {
+        _state.value = _state.value.copy(loading = true)
+        recompute(
+            withContext(Dispatchers.IO) { repo.load() },
+            _state.value.sort, _state.value.query, _state.value.filter,
+        )
+    }
     fun setSort(c: SortColumn) = recompute(_state.value.all, c, _state.value.query, _state.value.filter)
     fun setSearch(q: String) = recompute(_state.value.all, _state.value.sort, q, _state.value.filter)
     fun setFilter(f: FilterCard) = recompute(_state.value.all, _state.value.sort, _state.value.query, f)

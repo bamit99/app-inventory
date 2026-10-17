@@ -15,6 +15,7 @@ class AndroidPackageListSource(private val ctx: Context) : PackageListSource {
         return pm.getInstalledPackages(0)
             .filter { it.packageName != self }
             .filter { (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM) ?: 0) == 0 }
+            .filter { !com.example.appinventory.logic.BloatFilter.isVendor(it.packageName) }
             .map { pi ->
                 AppEntry(
                     packageName = pi.packageName,
