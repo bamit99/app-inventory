@@ -14,12 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.appinventory.data.AndroidPackageListSource
 import com.example.appinventory.data.AndroidStorageSource
 import com.example.appinventory.data.AndroidUsageSource
@@ -37,6 +40,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 var hasAccess by remember { mutableStateOf(UsageAccess.hasUsageAccess(this@MainActivity)) }
+                // Re-check usage access each time the activity resumes (after returning from Settings).
+                DisposableEffect(Unit) {
+                    val obs = LifecycleEventObserver { _, e ->
+                        if (e == Lifecycle.Event.ON_RESUME) hasAccess = UsageAccess.hasUsageAccess(this@MainActivity)
+                    }
+                    lifecycle.addObserver(obs)
+                    onDispose { lifecycle.removeObserver(obs) }
+                }
                 LaunchedEffect(hasAccess) { if (hasAccess) vm.refresh() }
                 Scaffold(floatingActionButton = {
                     FloatingActionButton(onClick = { exportCsv(vm) }) { Text("CSV") }

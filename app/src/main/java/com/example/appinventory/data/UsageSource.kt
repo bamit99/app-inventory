@@ -22,7 +22,7 @@ class AndroidUsageSource(private val ctx: Context) : UsageSource {
             ev.getNextEvent(e)
             if (e.packageName == pkg && e.eventType == UsageEvents.Event.ACTIVITY_RESUMED) c++
         }
-        return if (c > 0) c else -1L
+        return c
     }
 
     override fun lastLaunch(pkg: String, since: Long): Long {
