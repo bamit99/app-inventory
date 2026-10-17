@@ -12,7 +12,7 @@ something you can act on.
 
 Single screen, offline, no account, no database (*scan on demand* — see below).
 
-![App Inventory demo](docs/demo.png)
+![App Inventory demo](docs/Demo2.png)
 
 ## Why a scan button
 
