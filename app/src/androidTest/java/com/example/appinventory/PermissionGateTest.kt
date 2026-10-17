@@ -16,11 +16,12 @@ class PermissionGateTest {
     @Test fun showsGrantWhenNoAccess() {
         composeTestRule.setContent { PermissionGate(false, {}) { Text("hidden") } }
         composeTestRule.onNodeWithText("Grant Usage Access").assertExists()
-        composeTestRule.onNodeWithText("hidden").assertDoesNotExist()
+        composeTestRule.onNodeWithText("hidden").assertExists()
     }
 
     @Test fun showsContentWhenGranted() {
         composeTestRule.setContent { PermissionGate(true, {}) { Text("list") } }
         composeTestRule.onNodeWithText("list").assertExists()
+        composeTestRule.onNodeWithText("Grant Usage Access").assertDoesNotExist()
     }
 }
