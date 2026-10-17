@@ -1,7 +1,11 @@
 package com.example.appinventory.ui
 
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -67,6 +71,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// ACTION_DELETE's UninstallerActivity launches but renders nothing visible on some
+// OEM builds (ColorOS). PackageInstaller.uninstall() shows the real system confirmation.
+// This ColorOS build suppresses uninstall-confirmation dialogs for both
+// ACTION_DELETE and ACTION_UNINSTALL_PACKAGE (they launch but render nothing).
+// The app-details Settings page always shows, and has a visible Uninstall button.
+private fun requestUninstall(ctx: Context, pkg: String) {
+    ctx.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg")))
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Screen(vm: AppViewModel, hasAccess: Boolean, onExport: (AppViewModel) -> Unit) {
@@ -85,9 +98,7 @@ private fun Screen(vm: AppViewModel, hasAccess: Boolean, onExport: (AppViewModel
     ) { pad ->
         PermissionGate(hasAccess, onGrant = { activity.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }) {
             Column(Modifier.fillMaxSize().padding(pad)) {
-                InventoryScreen(vm, onUninstall = { e: AppEntry ->
-                    activity.startActivity(Intent(Intent.ACTION_DELETE, Uri.parse("package:${e.packageName}")))
-                })
+                InventoryScreen(vm, onUninstall = { e: AppEntry -> requestUninstall(activity, e.packageName) })
             }
         }
     }
