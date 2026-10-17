@@ -1,8 +1,10 @@
 package com.example.appinventory.ui
 
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.IntentSender
 import android.net.Uri
 import android.os.Build
@@ -30,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.appinventory.data.AndroidPackageListSource
@@ -57,7 +60,19 @@ class MainActivity : ComponentActivity() {
                     lifecycle.addObserver(obs)
                     onDispose { lifecycle.removeObserver(obs) }
                 }
+                val scope = rememberCoroutineScope()
                 LaunchedEffect(hasAccess) { if (hasAccess) vm.refresh() }
+                // Auto-refresh the list when the system reports a package uninstalled.
+                DisposableEffect(Unit) {
+                    val receiver = object : BroadcastReceiver() {
+                        override fun onReceive(c: Context?, i: Intent?) {
+                            if (i?.action == Intent.ACTION_PACKAGE_REMOVED) scope.launch { vm.refresh() }
+                        }
+                    }
+                    val filter = IntentFilter(Intent.ACTION_PACKAGE_REMOVED).apply { addDataScheme("package") }
+                    ContextCompat.registerReceiver(this@MainActivity, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+                    onDispose { this@MainActivity.unregisterReceiver(receiver) }
+                }
                 Screen(vm, hasAccess, ::exportCsv)
             }
         }
