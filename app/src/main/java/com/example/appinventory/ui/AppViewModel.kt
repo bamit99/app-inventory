@@ -1,7 +1,9 @@
 package com.example.appinventory.ui
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import com.example.appinventory.data.AppEntry
 import com.example.appinventory.data.AppInventoryRepository
 import com.example.appinventory.logic.CsvExport
@@ -41,7 +43,10 @@ class AppViewModel(
         )
     }
 
-    fun refresh() = recompute(repo.load(), _state.value.sort, _state.value.query, _state.value.filter)
+    suspend fun refresh() = recompute(
+        withContext(Dispatchers.IO) { repo.load() },
+        _state.value.sort, _state.value.query, _state.value.filter,
+    )
     fun setSort(c: SortColumn) = recompute(_state.value.all, c, _state.value.query, _state.value.filter)
     fun setSearch(q: String) = recompute(_state.value.all, _state.value.sort, q, _state.value.filter)
     fun setFilter(f: FilterCard) = recompute(_state.value.all, _state.value.sort, _state.value.query, f)
