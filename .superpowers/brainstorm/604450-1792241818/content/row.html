@@ -1,0 +1,86 @@
+<h2>Row detail — how much per row?</h2>
+<p class="subtitle">Summary-first layout (B) locked. Now pick the row. Click to select.</p>
+
+<style>
+  .phone { width: 250px; height: 470px; border-radius: 26px; background: #1c1c1e; color: #eee;
+    border: 3px solid #333; padding: 10px 12px; font-family: system-ui, sans-serif; font-size: 11px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35); margin: 0 auto; }
+  .statusbar { display:flex; justify-content:space-between; color:#888; font-size:9px; padding-bottom:4px; }
+  .appbar { font-weight:700; font-size:13px; padding:4px 2px 8px; }
+  .strip { background:#2a2a2e; border-radius:10px; padding:7px 10px; margin-bottom:8px; }
+  .strip .big { font-size:11px; font-weight:700; }
+  .row { padding:8px 6px; border-bottom:1px solid #2c2c2f; }
+  .r1 { display:flex; align-items:center; gap:8px; }
+  .nm { flex:1; font-size:11px; font-weight:600; }
+  .kill { color:#ff6b6b; font-weight:700; font-size:9px; border:1px solid #5a2a2a; border-radius:6px; padding:3px 7px; }
+  .meta { color:#8a8a8f; font-size:8.5px; margin-top:3px; }
+  .badge { background:#3a2a1a; color:#ffb454; font-size:7px; border-radius:5px; padding:1px 5px; margin-left:5px; }
+  .badge.never { background:#3a1a1a; color:#ff8a8a; }
+  .bar { height:4px; background:#333; border-radius:2px; margin-top:4px; }
+  .bar > i { display:block; height:4px; border-radius:2px; background:#4ea1ff; }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>▲ ●■</span></div>
+        <div class="appbar">Apps · 310 · 14 never · 4.2 GB</div>
+        <div class="row">
+          <div class="r1"><span class="nm">WhatsApp<span class="badge">stale</span></span><span class="kill">Uninstall</span></div>
+          <div class="meta">in 2024-04-30 · last 17:57 · 4386 launches · 620 MB</div>
+        </div>
+        <div class="row">
+          <div class="r1"><span class="nm">Sand<span class="badge never">never</span></span><span class="kill">Uninstall</span></div>
+          <div class="meta">in 2024-05-01 · never · 0 launches · 12 MB</div>
+        </div>
+        <div class="row">
+          <div class="r1"><span class="nm">Telegram</span><span class="kill">Uninstall</span></div>
+          <div class="meta">in 2024-05-29 · last 17:06 · 6069 launches · 410 MB</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A — Two-line detail</h3><p>Name + Uninstall on top, all fields on line two. Most info, taller rows.</p></div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>▲ ●■</span></div>
+        <div class="appbar">Apps · 310 · 14 never · 4.2 GB</div>
+        <div class="row"><div class="r1"><span class="nm">WhatsApp</span><span class="meta">17:57 · 4386</span><span class="kill">✕</span></div></div>
+        <div class="row"><div class="r1"><span class="nm">Sand <span class="badge never">never</span></span><span class="meta">— · 0</span><span class="kill">✕</span></div></div>
+        <div class="row"><div class="r1"><span class="nm">Telegram</span><span class="meta">17:06 · 6069</span><span class="kill">✕</span></div></div>
+        <div class="row"><div class="r1"><span class="nm">Opera</span><span class="meta">16:56 · 1570</span><span class="kill">✕</span></div></div>
+        <div class="row"><div class="r1"><span class="nm">FolderSync</span><span class="meta">23:51 · 1982</span><span class="kill">✕</span></div></div>
+        <div class="row"><div class="r1"><span class="nm">Outlook</span><span class="meta">17:56 · 1189</span><span class="kill">✕</span></div></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B — Compact single-line</h3><p>Name + last-launch/count + uninstall icon. Fits most rows. Tap row for detail.</p></div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span>▲ ●■</span></div>
+        <div class="appbar">Apps · 310 · 14 never · 4.2 GB</div>
+        <div class="row">
+          <div class="r1"><span class="nm">WhatsApp<span class="badge">stale</span></span><span class="kill">Uninstall</span></div>
+          <div class="bar"><i style="width:78%"></i></div>
+          <div class="meta">620 MB · last 17:57 · 4386</div>
+        </div>
+        <div class="row">
+          <div class="r1"><span class="nm">Sand<span class="badge never">never</span></span><span class="kill">Uninstall</span></div>
+          <div class="bar"><i style="width:8%"></i></div>
+          <div class="meta">12 MB · never · 0</div>
+        </div>
+        <div class="row">
+          <div class="r1"><span class="nm">Telegram</span><span class="kill">Uninstall</span></div>
+          <div class="bar"><i style="width:52%"></i></div>
+          <div class="meta">410 MB · last 17:06 · 6069</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C — Card row + storage bar</h3><p>Storage bar visual, badges, uninstall button. Heaviest, most scannable.</p></div>
+  </div>
+</div>
