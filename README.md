@@ -44,7 +44,7 @@ storage), with fakes for tests and thin real-Android implementations.
 
 ```
 gradlew :app:assembleDebug
-gradlew :app:testDebugUnitTest        # 19 JVM unit tests
+gradlew :app:testDebugUnitTest        # 21 JVM unit tests
 gradlew :app:connectedDebugAndroidTest # 6 instrumented (needs a device, screen on)
 ```
 
@@ -59,7 +59,7 @@ app/src/main/java/com/example/appinventory/
   data/      # AppEntry + source interfaces (packages, usage, storage) + repository
   logic/     # pure logic: Rules, Summary, SortSearch, CsvExport, BloatFilter
   ui/        # MainActivity, AppViewModel, InventoryScreen, AppRow, PermissionGate
-app/src/test/...      # 19 JVM tests
+app/src/test/...      # 21 JVM tests
 app/src/androidTest/... # handful of instrumented smoke/UI tests
 ```
 
